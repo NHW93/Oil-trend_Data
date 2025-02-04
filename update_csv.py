@@ -90,9 +90,13 @@ def push_to_github():
         print("✅ GitHub에 CSV 파일 업데이트 완료")
 
     except Exception as e:
-        print(f"❌ 오류: `{GITHUB_CSV_PATH}` 파일을 찾을 수 없습니다! GitHub 저장소에 존재하는지 확인하세요.")
-        print(f"🔍 상세 오류 메시지: {e}")
-        exit(1)  # 🚨 오류 발생 시 프로그램 종료
+        print(f"⚠️ `{GITHUB_CSV_PATH}` 파일을 찾을 수 없음. 새로 생성합니다...")
+        
+        # ✅ 파일이 없으면 새로 생성
+        with open(GITHUB_CSV_PATH, "r", encoding="utf-8-sig") as file:
+            content = file.read()
+        repo.create_file(GITHUB_CSV_PATH, f"자동 생성 - {datetime.today().strftime('%Y-%m-%d')}", content)
+        print("✅ GitHub에 새 파일이 생성됨!")
 
 def main():
     """✅ 전체 실행 함수"""

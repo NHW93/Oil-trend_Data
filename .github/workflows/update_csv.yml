@@ -24,13 +24,6 @@ jobs:
       - name: 필요 패키지 설치
         run: pip install requests pandas PyGithub python-dotenv
 
-      - name: CSV 파일 존재 확인
-        run: |
-          if [ ! -f "oil_data.csv" ]; then
-            echo "❌ 오류: oil_data.csv 파일이 존재하지 않습니다!"
-            exit 1
-          fi
-
       - name: CSV 파일 업데이트 실행
         env:
           OPINET_API_KEY: ${{ secrets.OPINET_API_KEY }}

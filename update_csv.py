@@ -12,7 +12,7 @@ load_dotenv()
 # ✅ API 키 설정 (GitHub Secrets 사용)
 OPINET_API_KEY = os.getenv("OPINET_API_KEY")
 EXCHANGE_RATE_API_KEY = os.getenv("EXIMBANK_API_KEY")
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+GITHUB_TOKEN = os.getenv("ACCESS_TOKEN")
 
 # ✅ GitHub 저장소 및 파일 경로
 GITHUB_REPO_NAME = "NHW93/Oil-trend_Data"

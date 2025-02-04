@@ -77,14 +77,22 @@ def push_to_github():
     g = Github(ACCESS_TOKEN)
     repo = g.get_repo(GITHUB_REPO_NAME)
 
-    # ✅ 기존 파일 가져오기
-    contents = repo.get_contents(GITHUB_CSV_PATH)
-    
-    with open(GITHUB_CSV_PATH, "r", encoding="utf-8-sig") as file:
-        content = file.read()
+    try:
+        # ✅ 기존 파일 가져오기 (없으면 예외 발생)
+        contents = repo.get_contents(GITHUB_CSV_PATH)
 
-    repo.update_file(contents.path, f"자동 업데이트 - {datetime.today().strftime('%Y-%m-%d')}", content, contents.sha)
-    print("✅ GitHub에 CSV 파일 업데이트 완료")
+        # ✅ 파일 내용 읽기
+        with open(GITHUB_CSV_PATH, "r", encoding="utf-8-sig") as file:
+            content = file.read()
+
+        # ✅ GitHub에 파일 업데이트
+        repo.update_file(contents.path, f"자동 업데이트 - {datetime.today().strftime('%Y-%m-%d')}", content, contents.sha)
+        print("✅ GitHub에 CSV 파일 업데이트 완료")
+
+    except Exception as e:
+        print(f"❌ 오류: `{GITHUB_CSV_PATH}` 파일을 찾을 수 없습니다! GitHub 저장소에 존재하는지 확인하세요.")
+        print(f"🔍 상세 오류 메시지: {e}")
+        exit(1)  # 🚨 오류 발생 시 프로그램 종료
 
 def main():
     """✅ 전체 실행 함수"""

@@ -1,5 +1,6 @@
 import requests
 import pandas as pd
+import time
 import json
 from datetime import datetime
 from github import Github
@@ -57,15 +58,32 @@ def fetch_oil_prices():
     return None
 
 def fetch_exchange_rate():
-    """✅ USD 환율 데이터 가져오기"""
+    """✅ USD 환율 데이터 가져오기 (재시도 포함)"""
     today = datetime.today().strftime("%Y%m%d")
-    response = requests.get(EXCHANGE_RATE_API_URL, params={"authkey": EXCHANGE_RATE_API_KEY, "searchdate": today, "data": "AP01"})
-    
-    if response.status_code == 200:
-        data = response.json()
-        for item in data:
-            if item["cur_unit"] == "USD":
-                return float(item["deal_bas_r"].replace(",", ""))
+    retries = 3  # 최대 재시도 횟수
+
+    for attempt in range(retries):
+        try:
+            response = requests.get(
+                EXCHANGE_RATE_API_URL,
+                params={"authkey": EXIMBANK_API_KEY, "searchdate": today, "data": "AP01"},
+                timeout=10  # 10초 타임아웃 설정
+            )
+
+            if response.status_code == 200:
+                data = response.json()
+                for item in data:
+                    if item["cur_unit"] == "USD":
+                        return float(item["deal_bas_r"].replace(",", ""))
+            else:
+                print(f"⚠️ 환율 API 응답 실패: {response.status_code}, 재시도 {attempt + 1}/{retries}")
+        
+        except requests.exceptions.RequestException as e:
+            print(f"⚠️ 요청 실패: {e}, 재시도 {attempt + 1}/{retries}")
+
+        time.sleep(5)  # 5초 대기 후 재시도
+
+    print("❌ 환율 API 3회 요청 실패, 업데이트 중단")
     return None
 
 def update_csv(df):

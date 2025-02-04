@@ -4,9 +4,15 @@ import json
 from datetime import datetime
 import os
 from dotenv import load_dotenv
+from github import Github
 
 # ✅ 환경 변수 로드
 load_dotenv()
+
+# ✅ GitHub 설정
+ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
+GITHUB_REPO_NAME = "NHW93/Oil-trend_Data"
+GITHUB_CSV_PATH = "oil_data.csv"
 
 # ✅ API 키 설정 (GitHub Secrets 사용)
 OPINET_API_KEY = os.getenv("OPINET_API_KEY")
@@ -66,13 +72,29 @@ def update_csv():
     print("✅ 국내 유가 데이터 업데이트 완료")
     return True
 
+def push_to_github():
+    """✅ 업데이트된 CSV 파일을 GitHub에 푸시"""
+    g = Github(ACCESS_TOKEN)
+    repo = g.get_repo(GITHUB_REPO_NAME)
+
+    # ✅ 기존 파일 가져오기
+    contents = repo.get_contents(GITHUB_CSV_PATH)
+    
+    with open(GITHUB_CSV_PATH, "r", encoding="utf-8-sig") as file:
+        content = file.read()
+
+    repo.update_file(contents.path, f"자동 업데이트 - {datetime.today().strftime('%Y-%m-%d')}", content, contents.sha)
+    print("✅ GitHub에 CSV 파일 업데이트 완료")
+
 def main():
     """✅ 전체 실행 함수"""
     print("🚀 국내 유가 데이터 업데이트 시작")
     if update_csv():
+        push_to_github()
         print("✅ 모든 업데이트 완료")
     else:
         print("❌ 업데이트 실패")
+
 
 if __name__ == "__main__":
     main()

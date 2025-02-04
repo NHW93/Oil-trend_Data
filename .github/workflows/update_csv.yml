@@ -5,12 +5,16 @@ on:
     - cron: "0 0 * * *"  # 매일 자정 실행
   workflow_dispatch:  # 수동 실행 가능
 
+permissions: write-all  # ✅ GitHub 저장소 수정 권한 추가
+
 jobs:
   update_csv:
     runs-on: ubuntu-latest
     steps:
       - name: 저장소 체크아웃
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.ACCESS_TOKEN }}  # ✅ GitHub 인증 추가
 
       - name: Python 설정
         uses: actions/setup-python@v3
@@ -23,6 +27,5 @@ jobs:
       - name: CSV 파일 업데이트 실행
         env:
           OPINET_API_KEY: ${{ secrets.OPINET_API_KEY }}
-          EXIMBANK_API_KEY: ${{ secrets.EXIMBANK_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         run: python update_csv.py

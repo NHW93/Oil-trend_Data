@@ -13,6 +13,7 @@ load_dotenv()
 ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
 GITHUB_REPO_NAME = "NHW93/Oil-trend_Data"
 GITHUB_CSV_PATH = "oil_data.csv"
+BRANCH = "main"  # ✅ 브랜치 설정 (현재 `main` 브랜치 사용)
 
 # ✅ API 키 설정 (GitHub Secrets 사용)
 OPINET_API_KEY = os.getenv("OPINET_API_KEY")
@@ -78,15 +79,15 @@ def push_to_github():
     repo = g.get_repo(GITHUB_REPO_NAME)
 
     try:
-        # ✅ 기존 파일 가져오기 (없으면 예외 발생)
-        contents = repo.get_contents(GITHUB_CSV_PATH)
+        # ✅ 기존 파일 가져오기 (브랜치 명시)
+        contents = repo.get_contents(GITHUB_CSV_PATH, ref=BRANCH)
 
         # ✅ 파일 내용 읽기
         with open(GITHUB_CSV_PATH, "r", encoding="utf-8-sig") as file:
             content = file.read()
 
         # ✅ GitHub에 파일 업데이트
-        repo.update_file(contents.path, f"자동 업데이트 - {datetime.today().strftime('%Y-%m-%d')}", content, contents.sha)
+        repo.update_file(contents.path, f"자동 업데이트 - {datetime.today().strftime('%Y-%m-%d')}", content, contents.sha, branch=BRANCH)
         print("✅ GitHub에 CSV 파일 업데이트 완료")
 
     except Exception as e:
@@ -95,7 +96,7 @@ def push_to_github():
         # ✅ 파일이 없으면 새로 생성
         with open(GITHUB_CSV_PATH, "r", encoding="utf-8-sig") as file:
             content = file.read()
-        repo.create_file(GITHUB_CSV_PATH, f"자동 생성 - {datetime.today().strftime('%Y-%m-%d')}", content)
+        repo.create_file(GITHUB_CSV_PATH, f"자동 생성 - {datetime.today().strftime('%Y-%m-%d')}", content, branch=BRANCH)
         print("✅ GitHub에 새 파일이 생성됨!")
 
 def main():
